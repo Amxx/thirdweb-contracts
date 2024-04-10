@@ -25,7 +25,7 @@ contract DropERC1155WithNativeFee is DropERC1155 {
         uint256 _pricePerToken
     ) internal virtual override {
         // Sale price and recipient
-        uint256 price = _quantityToClaim * _pricePerToken;
+        uint256 price = _pricePerToken * _quantityToClaim;
         address recipient =
             _primarySaleRecipient != address(0)
             ? _primarySaleRecipient
@@ -34,15 +34,16 @@ contract DropERC1155WithNativeFee is DropERC1155 {
             : primarySaleRecipient();
 
         // Platform fee and recipient
-        uint256 platformFee;
+        uint256 platformFeePerToken;
         address platformFeeRecipient;
         if (getPlatformFeeType() == PlatformFeeType.Bps) {
             uint16 platformFeeBps;
             (platformFeeRecipient, platformFeeBps) = getPlatformFeeInfo();
-            platformFee = price * platformFeeBps / 10_000;
+            platformFeePerToken = _pricePerToken * platformFeeBps / 10_000;
         } else {
-            (platformFeeRecipient, platformFee) = getFlatPlatformFeeInfo();
+            (platformFeeRecipient, platformFeePerToken) = getFlatPlatformFeeInfo();
         }
+        uint256 platformFee = platformFeePerToken * _quantityToClaim;
 
         // Check value sent
         require(msg.value == (_currency == CurrencyTransferLib.NATIVE_TOKEN ? price : 0) + platformFee, "!V");
