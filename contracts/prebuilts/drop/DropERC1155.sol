@@ -237,7 +237,7 @@ contract DropERC1155 is
         uint256 _quantityToClaim,
         address _currency,
         uint256 _pricePerToken
-    ) internal override {
+    ) internal virtual override {
         if (_pricePerToken == 0) {
             require(msg.value == 0, "!V");
             return;
